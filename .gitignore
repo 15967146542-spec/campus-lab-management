@@ -1,0 +1,9 @@
+# Maven 编译产物
+target/
+
+# 日志文件
+*.log
+
+# IDEA 配置
+.idea/
+*.iml

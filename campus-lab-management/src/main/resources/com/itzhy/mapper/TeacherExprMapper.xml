@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itzhy.mapper.TeacherExprMapper">
+
+    <!-- 批量插入教师教育经历信息 -->
+    <insert id="insertBatch">
+        insert into teacher_expr(teacher_id, begin, end, school, degree) values
+        <foreach collection="eduList" item="expr" separator=",">
+            (#{expr.teacherId}, #{expr.begin}, #{expr.end}, #{expr.school}, #{expr.degree})
+        </foreach>
+    </insert>
+
+    <!-- 根据教师id批量删除教育经历信息 -->
+    <delete id="deleteByTeacherIds">
+        delete from teacher_expr where teacher_id in
+        <foreach collection="ids" item="teacherId" separator="," open="(" close=")">
+            #{teacherId}
+        </foreach>
+    </delete>
+
+    <!-- 根据单个教师id删除教育经历信息 -->
+    <delete id="deleteByTeacherId">
+        delete from teacher_expr where teacher_id = #{teacherId}
+    </delete>
+</mapper>

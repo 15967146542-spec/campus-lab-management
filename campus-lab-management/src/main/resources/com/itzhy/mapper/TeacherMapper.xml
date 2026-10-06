@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itzhy.mapper.TeacherMapper">
+
+<!--    批量删除教师基本信息-->
+    <delete id="deleteByIds">
+        delete from teacher where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="list" resultType="com.itzhy.pojo.Teacher">
+        select t.*, l.name labName from teacher t left join lab l on t.lab_id = l.id
+        <where>
+            <if test="name != null and name != ''">
+                t.name like concat('%',#{name},'%')
+            </if>
+            <if test="gender != null and gender != 0">
+                and t.gender = #{gender}
+            </if>
+            <if test="begin != null and end != null">
+                and t.hire_date between #{begin} and #{end}
+            </if>
+        </where>
+        order by t.update_time desc
+    </select>
+
+    <!-- resultMap: 手动封装教师基本信息 + 教育经历信息 -->
+    <resultMap id="teacherInfoResultMap" type="com.itzhy.pojo.Teacher">
+        <!-- 封装教师基本信息 -->
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="name" column="name"/>
+        <result property="gender" column="gender"/>
+        <result property="phone" column="phone"/>
+        <result property="title" column="title"/>
+        <result property="researchFund" column="research_fund"/>
+        <result property="image" column="image"/>
+        <result property="hireDate" column="hire_date"/>
+        <result property="labId" column="lab_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <!-- 封装教育经历信息: columnPrefix 使 collection 内 column 自动拼接 ee_ 前缀 -->
+        <collection property="eduList" ofType="com.itzhy.pojo.TeacherExpr" columnPrefix="ee_">
+            <id property="id" column="id"/>
+            <result property="teacherId" column="teacher_id"/>
+            <result property="begin" column="begin"/>
+            <result property="end" column="end"/>
+            <result property="school" column="school"/>
+            <result property="degree" column="degree"/>
+        </collection>
+    </resultMap>
+
+    <!-- 根据Id查询教师信息及教育经历信息 -->
+    <select id="getById" resultMap="teacherInfoResultMap">
+        select t.* ,
+        ee.id ee_id,
+        ee.teacher_id ee_teacher_id,
+        ee.begin ee_begin,
+        ee.end ee_end,
+        ee.school ee_school,
+        ee.degree ee_degree
+
+        from teacher t left join teacher_expr ee on t.id = ee.teacher_id
+        where t.id = #{id}
+    </select>
+
+    <!-- 根据ID修改教师基本信息: 使用 <set> + <if> 动态SQL，只更新非空字段 -->
+    <update id="update">
+        update teacher
+        <set>
+            <if test="username != null and username != ''">username = #{username},</if>
+            <if test="password != null and password != ''">password = #{password},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="phone != null and phone != ''">phone = #{phone},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="researchFund != null">research_fund = #{researchFund},</if>
+            <if test="image != null and image != ''">image = #{image},</if>
+            <if test="hireDate != null">hire_date = #{hireDate},</if>
+            <if test="labId != null">lab_id = #{labId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>

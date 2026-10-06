@@ -1,0 +1,25 @@
+#配置数据库的连接信息
+spring:
+  application:
+    name: campus-lab-management
+
+  #配置数据库的连接信息
+  datasource:
+    url: jdbc:mysql://localhost:3306/campus_lab
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    # 运行前改成你自己的 MySQL 密码；建库建表脚本见 ../sql/
+    password: your-password-here
+
+#配置Mybatis的日志输出
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+    #开启下划线转驼峰映射 create_time -> createTime
+    map-underscore-to-camel-case: true
+
+#配置事务管理日志级别
+logging:
+  level:
+    org.springframework.jdbc.support.JdbcTransactionManager: debug

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itzhy.mapper.TeamMapper">
+
+<!--    条件分页查询课题组列表-->
+    <select id="list" resultType="com.itzhy.pojo.Team">
+        select t.*, te.name leaderName from team t left join teacher te on t.leader_id = te.id
+        <where>
+            <if test="name != null and name != ''">
+                t.name like concat('%',#{name},'%')
+            </if>
+            <if test="begin != null and end != null">
+                and t.end_date between #{begin} and #{end}
+            </if>
+        </where>
+        order by t.update_time desc
+    </select>
+
+    <!-- 根据ID修改课题组: 使用 <set> + <if> 动态SQL，只更新非空字段 -->
+    <update id="update">
+        update team
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="location != null and location != ''">location = #{location},</if>
+            <if test="beginDate != null">begin_date = #{beginDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="leaderId != null">leader_id = #{leaderId},</if>
+            <if test="field != null">field = #{field},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>
