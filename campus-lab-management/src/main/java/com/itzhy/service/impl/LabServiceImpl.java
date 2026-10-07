@@ -6,6 +6,8 @@ import com.itzhy.mapper.TeacherMapper;
 import com.itzhy.pojo.Lab;
 import com.itzhy.service.LabService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,12 +20,15 @@ public class LabServiceImpl implements LabService {
     private LabMapper labMapper;
     @Autowired
     private TeacherMapper teacherMapper;
+
     @Override
+    @Cacheable(cacheNames = "labList")
     public List<Lab> findAll() {
         return labMapper.findAll();
     }
 
     @Override
+    @CacheEvict(cacheNames = "labList", allEntries = true)
     public void deleteById(Integer id) {
         //1.校验实验室下是否关联有教师，有则不允许删除
         Long count = teacherMapper.countByLabId(id);
@@ -36,6 +41,7 @@ public class LabServiceImpl implements LabService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "labList", allEntries = true)
     public void add(Lab lab) {
         //1.补全基础属性-createTime,updateTime
         lab.setCreateTime(LocalDateTime.now());
@@ -51,11 +57,15 @@ public class LabServiceImpl implements LabService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "labList", allEntries = true)
     public void update(Lab lab) {
         //1.补全基础属性
         lab.setUpdateTime(LocalDateTime.now());
 
         //2.调用Mapper接口方法更新数据
         labMapper.update(lab);
+
     }
+
+
 }
